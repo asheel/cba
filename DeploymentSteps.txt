@@ -1,0 +1,26 @@
+Build CBA using Jenkins
+Jenkins job can be used to pull up code from TFS repository into build machine. Build machine will require following tools and setup.
+•	GIT client to pull up code from TFS.
+•	Apache ANT tool to build CBA in build machine. 
+•	Jenkins job can be refer for specific master branch or specific release branch code.
+
+Deployment of CBA into MDM Operational Server as an extension
+Once CBA is built in build machine with latest MDM 11.6 JARs using JENKINS+ GIT+ ANT tool, custom script can be used to deploy same CBA into MDM WAS server. 
+Following are script components used for custom script process. 
+1)	installCba.properties 
+Property file will have following four parameters.
+
+was.profile.dir=/opt/IBM/WAS/WebSphere9/AppServer/profiles/Dmgr01
+mdm.install.dir=/opt/IBM/110610
+cba.assets.dir=/home/wasadmin/deploy/cba
+mdm.admin.password=<password>
+remove.cba.name=testCBA.cba
+remove.cba.bundleVersion=1.0.0.202106221600
+
+2)	addCba.sh
+3)	addCba.py 
+4)	installCba.sh
+
+installCba.sh is master script which will read installCba.property file and will copy addCba.sh and addCba.py into $WAS_PROFILE_DIR/bin.
+Then script will invoke addCba.sh for each cba present in cba.assets.dir. Script will in turn invokes the addCba.py using the wsadmin.sh tool from WAS and passes in parameters CBA location, Instance Id, Bundle Name and Bundle Version.  The addCba.py file adds the local repository bundle, adds it as an extension to the Enterprise Business Archive in MDM operational server Business Level Application, edits the composition unit and saves it. if there are multiple “.cba” files available inside “cba.assets.dir” then script will assume that more than one cba need to be deployed into WAS directory.
+Similarly, removeCba.sh and removeCba.py can be used to remove any existing CBA from MDM server. Last two properties used in property file being used for CBA removal.
